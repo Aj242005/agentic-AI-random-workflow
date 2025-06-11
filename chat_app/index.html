@@ -6,13 +6,125 @@
     <title>AI Chat</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<style>
+    body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 80%;
+    max-width: 900px;
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.role-selector {
+    display: flex;
+    align-items: center;
+}
+
+.role-selector label {
+    margin-right: 10px;
+}
+
+.role-selector select {
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background-color: #444;
+    color: #fff;
+}
+
+.chat-area {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 400px; /* Adjust as needed */
+}
+
+.message {
+    padding: 10px 15px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+.user-message {
+    background-color: #4CAF50;
+    color: #fff;
+    align-self: flex-end;
+}
+
+ai-message {
+    background-color: #008CBA;
+    color: #fff;
+    align-self: flex-start;
+}
+
+.input-area {
+    padding: 20px;
+    border-top: 1px solid #444;
+    display: flex;
+    gap: 10px;
+}
+
+.input-area input[type="text"] {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+}
+
+.input-area button {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: none;
+    background-color: #555;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.input-area button:hover {
+    background-color: #777;
+}
+</style>
 <body>
     <div class="container">
         <div class="header">
             <h1>AI Chat Application</h1>
             <div class="role-selector">
                 <label for="role">Select Role:</label>
-                <select id="role" name="role">
+                <select id="llmrole" name="role">
                     <option value="user">User</option>
                     <option value="system">System</option>
                     <option value="programmer">Programmer</option>
@@ -42,6 +154,53 @@
             <button id="send-button">Send</button>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script defer>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sendButton = document.getElementById('send-button');
+        const chatArea = document.querySelector('.chat-area');
+        
+        sendButton.addEventListener('click', function() {
+            const messageInput = document.getElementById('message-input');
+            const roleSelector = document.getElementById('llmrole');
+            const messageText = messageInput.value.trim();
+            if (messageText !== '') {
+                // Create user message element
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.classList.add('message', 'user-message');
+                userMessageDiv.innerHTML = `<p>${messageText}</p>`;
+                chatArea.appendChild(userMessageDiv);
+
+                fetch("https://friendly-adventure-gj6v947v7w5hvpp7-3000.app.github.dev/api/callAgenticAi",
+                    {
+                        method : "POST",
+                        body : {
+                            role : roleSelector.value,
+                            content : messageText
+                        }
+                    }
+                )
+                .then( (data) => {
+                    data.json()
+                    .then( (parsedData) => {
+                        const aiMessageDiv = document.createElement('div');
+                        aiMessageDiv.classList.add('message', 'ai-message');
+                        aiMessageDiv.innerHTML = `<p>AI : ${parsedData}</p>`;
+                        chatArea.appendChild(aiMessageDiv);
+                        console.log(parsedData)
+                    })
+                })
+
+                // Create AI message element (for testing purposes)
+
+                // Clear input
+                messageInput.value = '';
+
+                // Scroll to bottom of chat area
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+        });
+    });
+
+    </script>
 </body>
 </html>

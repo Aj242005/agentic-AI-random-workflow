@@ -18,4 +18,4 @@ export const getTheChildsOfDirectory = ( path ) => {
     })
 }
 
-getTheChildsOfDirectory('/workspaces/agentic-AI-random-workflow');
+//getTheChildsOfDirectory('/workspaces/agentic-AI-random-workflow');

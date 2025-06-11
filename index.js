@@ -13,6 +13,13 @@ import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import path from 'path';
+ 
+// issue with the module JS
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const App = express();
 
@@ -22,7 +29,7 @@ App.use(cookieParser());
 
 
 App.get("/",( req,res,next ) => {
-    res.sendFile(path.join(__dirname,"public","/chat_app/index.html"))
+    res.sendFile(path.join(__dirname,"/chat_app/index.html"))
 })
 
 
@@ -133,13 +140,14 @@ console.log(result);
 
 App.post("/api/callAgenticAi", async ( req, res, next ) => {
     const { role , content } = req.body;
-    const resultOfTextSend = await agent.invoke({
+    const resultForThePrompt = await agent.invoke({
         messages : {
             role,
             content
         }
     })
-    res.send(resultOfTextSend).status(200);
+    res.send(resultForThePrompt.messages[2].content).status(200);
+    console.log(resultForThePrompt);
 })
 
 
