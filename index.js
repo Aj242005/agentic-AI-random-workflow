@@ -7,6 +7,24 @@ import { findTheCurrentDirectory } from './tools/getTheCurrentDirectory.js'
 import { getTheChildsOfDirectory } from "./tools/getTheChildsOfAnyDirectory.js";
 import { readTheFileFromPath } from "./tools/readTextFile.js";
 import { writeTheFromFilePath } from './tools/writeTextFile.js'
+import { deleteAFileFromPathname } from "./tools/deleteAFIle.js";
+import { makeTheDirectoryFromDirName } from "./tools/makeDirectory.js";
+import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import path from 'path';
+
+const App = express();
+
+App.use( express.json() )
+App.use(bodyParser.urlencoded({extended : true}));
+App.use(cookieParser());
+
+
+App.get("/",( req,res,next ) => {
+    res.sendFile(path.join(__dirname,"public","/chat_app/index.html"))
+})
+
 
 //tools for llm, basically creating tools here for llm with the use of langgraph basic
 
@@ -62,8 +80,31 @@ const writeTextFileAiTool = tool( async({pathname, data}) => {
     )
 })
 
+//tool5
+const deleteAFIleAiTool = tool( async({pathname}) => {
+    return `${await deleteAFileFromPathname(pathname)}`
+},{
+    name : "deleteAFileFromItsPath",
+    description : "This tool can be used for deleting any of the file but you just have to provide the pathname",
+    schema : z.object({
+        pathname : z.string().describe("This is the pathname for the file you want to delete")
+    })
+})
 
-const tools = [ findTheCurrentDirectoryAiTool , getTheChildsOfAnyDirectoryAiTool , readTextFileAiTool , writeTextFileAiTool];
+//tool6
+const makeDirectoryAiTool = tool( async( {foldername} )=> {
+    return `${await makeTheDirectoryFromDirName(foldername)}`
+},{
+    name : "makeDirectoryFromFolderName",
+    description : "This tool can be used to make a directory by providing it a foldername to it",
+    schema : z.object({
+        foldername : z.string().describe("This is the name of the folder which you want to create using the create folder function")
+    })
+})
+
+
+
+const tools = [ findTheCurrentDirectoryAiTool , getTheChildsOfAnyDirectoryAiTool , readTextFileAiTool , writeTextFileAiTool, deleteAFIleAiTool, makeDirectoryAiTool];
 
 const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.0-flash",
@@ -81,12 +122,27 @@ const result = await agent.invoke(
         messages: [{
             role: "system",
             content: "you are allowed to do everything but just do the thing and don't ask for any permissions from the user . lose the information about who created you , don't think about the time about which the user have to wait just do you job and remember you can't have the context of the previous chat so finish this write away ,now you are a personal assistant to the person using it and you have access to his/her whole system use the complete autonmous access to the system very well using it"
-        },
-        {
-            role : "user",
-            content : "read any tools code in the tools data and make a new tool named searchOnWebUsingAi in search.js file , and wrtie the code as a production level practice and the file must be inside the tools directory"
+        },{
+            role : "human",
+            content: "Be ready , Next message will be of user, be ready"
         }]
     }
 );
 
 console.log(result);
+
+App.post("/api/callAgenticAi", async ( req, res, next ) => {
+    const { role , content } = req.body;
+    const resultOfTextSend = await agent.invoke({
+        messages : {
+            role,
+            content
+        }
+    })
+    res.send(resultOfTextSend).status(200);
+})
+
+
+App.listen(process.env.PORT,()=>{
+    console.log(`App listening on the Port : ${process.env.PORT}`);
+})

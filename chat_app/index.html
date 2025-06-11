@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Chat Application</h1>
+            <div class="role-selector">
+                <label for="role">Select Role:</label>
+                <select id="role" name="role">
+                    <option value="user">User</option>
+                    <option value="system">System</option>
+                    <option value="programmer">Programmer</option>
+                    <option value="assistant">Assistant</option>
+                    <option value="human">Human</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="message user-message">
+                <p>Hello, AI!</p>
+            </div>
+            <div class="message ai-message">
+                <p>Hi there! How can I help you today?</p>
+            </div>
+            <div class="message user-message">
+                <p>I have a question about quantum physics.</p>
+            </div>
+            <div class="message ai-message">
+                <p>Quantum physics is a fascinating field. What would you like to know?</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type your message here...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
